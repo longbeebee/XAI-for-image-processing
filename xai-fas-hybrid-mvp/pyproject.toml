@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xai-fas-hybrid-mvp"
+version = "0.1.0"
+description = "Reproducible XAI stability and faithfulness MVP for face anti-spoofing"
+requires-python = ">=3.10,<3.12"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+

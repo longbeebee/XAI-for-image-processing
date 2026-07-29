@@ -1,0 +1,50 @@
+seed: 42
+paths:
+  dataset_root: "D:/Datasets/CelebA-Spoof"
+  processed_dir: "D:/XAI-FAS/data/processed"
+  output_dir: "D:/XAI-FAS/results"
+  cache_dir: "D:/XAI-FAS/cache"
+device: {preferred: auto, allow_cpu_fallback: true, mixed_precision: false}
+reproducibility: {deterministic_mode: best_effort}
+windows: {default_num_workers: 2, retry_num_workers_zero: true, long_path_warning: true}
+dataset:
+  name: celeba_spoof
+  preserve_official_test_split: true
+  subset:
+    enabled: true
+    train_samples: 10000
+    val_samples: 1000
+    test_samples: 1000
+    balance_labels: true
+    balance_spoof_types: true
+    seed: 42
+dataset_preparation: {inspect_image_dimensions: false, batch_size: 5000, save_every_batches: 5, skip_corrupted_images: true, resume: true}
+model: {name: mobilenet_v3_small, pretrained: true, num_classes: 2}
+training:
+  image_size: 224
+  batch_size: 16
+  total_epochs: 6
+  head_only_epochs: 2
+  unfreeze_last_blocks: 3
+  head_learning_rate: 0.001
+  fine_tune_learning_rate: 0.0001
+  weight_decay: 0.0001
+  patience: 2
+  gradient_clip_norm: 1.0
+  num_workers: 2
+  pin_memory: false
+  persistent_workers: false
+  mixed_precision: false
+evaluation: {threshold_strategy: min_acer}
+perturbations:
+  brightness: {1: 0.8, 2: 0.6, 3: 0.4}
+  blur: {1: 0.5, 2: 1.0, 3: 2.0}
+  jpeg: {1: 70, 2: 40, 3: 20}
+xai:
+  methods: [gradcam, integrated_gradients]
+  integrated_gradients: {n_steps: 16, internal_batch_size: 4, baseline: zero}
+  topk: [0.1, 0.2]
+evaluation_limits: {prediction_stability_samples: 200, explanation_stability_samples: 50, faithfulness_samples: 10, sanity_samples: 5, runtime_samples: 10}
+faithfulness: {patch_size: 32, steps: 5, baselines: [mean, blur]}
+statistics: {bootstrap_iterations: 500, confidence_level: 0.95, paired_test: wilcoxon, multiple_test_correction: holm}
+

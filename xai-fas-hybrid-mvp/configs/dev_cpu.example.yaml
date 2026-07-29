@@ -1,0 +1,25 @@
+seed: 42
+paths:
+  dataset_root: "./data/fixture"
+  processed_dir: "./data/processed"
+  output_dir: "./results"
+  cache_dir: "./cache"
+device: {preferred: cpu, allow_cpu_fallback: false, mixed_precision: false}
+reproducibility: {deterministic_mode: best_effort}
+dataset:
+  name: celeba_spoof
+  preserve_official_test_split: true
+  subset: {enabled: true, train_samples: 8, val_samples: 2, test_samples: 2, seed: 42}
+model: {name: mobilenet_v3_small, pretrained: false, num_classes: 2}
+training: {image_size: 224, batch_size: 2, total_epochs: 1, head_only_epochs: 1, unfreeze_last_blocks: 0, num_workers: 0, mixed_precision: false}
+evaluation: {threshold_strategy: min_acer}
+perturbations:
+  brightness: {1: 0.8}
+  blur: {1: 0.5}
+  jpeg: {1: 70}
+xai:
+  methods: [gradcam, integrated_gradients]
+  integrated_gradients: {n_steps: 4, internal_batch_size: 2, baseline: zero}
+evaluation_limits: {prediction_stability_samples: 2, explanation_stability_samples: 1, faithfulness_samples: 1, sanity_samples: 1, runtime_samples: 1}
+faithfulness: {patch_size: 32, steps: 2, baselines: [mean]}
+
