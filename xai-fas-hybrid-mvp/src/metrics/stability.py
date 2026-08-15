@@ -16,10 +16,18 @@ def cosine_similarity(left: np.ndarray, right: np.ndarray) -> float:
 
 
 def spearman_correlation(left: np.ndarray, right: np.ndarray) -> float:
-    """Spearman correlation, mapping identical constants to one."""
+    """Spearman correlation with explicit constant-map semantics.
+
+    Spearman correlation is undefined when either input has no variance. For
+    explanation stability, identical constant maps are treated as perfectly
+    stable (1.0), while unequal constant maps are treated as dissimilar (0.0).
+    This makes the convention deterministic and avoids scipy warnings.
+    """
     a, b = np.asarray(left, dtype=float).ravel(), np.asarray(right, dtype=float).ravel()
     if np.allclose(a, b):
         return 1.0
+    if np.allclose(a, a[0]) or np.allclose(b, b[0]):
+        return 0.0
     value = spearmanr(a, b, nan_policy="omit").statistic
     return 0.0 if not np.isfinite(value) else float(value)
 

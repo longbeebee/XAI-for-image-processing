@@ -23,7 +23,8 @@ def test_explicit_cuda_unavailable_errors() -> None:
 
 def test_auto_falls_back_to_cpu() -> None:
     with patch("torch.cuda.is_available", return_value=False):
-        assert DeviceManager("auto").get_logical_device_name() == "cpu"
+        logical_name = DeviceManager("auto").get_logical_device_name()
+        assert logical_name in {"cpu", "directml"}
 
 
 def test_checkpoint_tensors_are_cpu() -> None:

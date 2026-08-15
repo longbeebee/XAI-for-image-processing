@@ -23,7 +23,7 @@ def test_absolute_paths_rejected(raw: str) -> None:
 
 
 def test_resolve_portable_path() -> None:
-    assert str(resolve_dataset_path("/data/root", "Data/train/a.jpg")).endswith(
-        "data/root/Data/train/a.jpg"
-    )
+    resolved = resolve_dataset_path("/data/root", "Data/train/a.jpg")
+    portable = str(resolved).replace("\\", "/")
+    assert portable.endswith("data/root/Data/train/a.jpg")
 

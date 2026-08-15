@@ -20,7 +20,14 @@ from .utils import atomic_json, sha256_file, utc_now, write_status
 
 
 def _annotation_files(root: Path) -> list[Path]:
-    return sorted(path for path in root.rglob("*.json") if "label" in path.name.lower())
+    candidates = sorted(path for path in root.rglob("*.json") if "label" in path.name.lower())
+    # CelebA-Spoof ships several protocol-specific label sets.  The MVP uses
+    # the official intra-test train/test split; combining protocols duplicates
+    # the same image many times and invalidates leakage checks.
+    intra_test = [path for path in candidates if path.parent.name.lower() == "intra_test"]
+    if len(intra_test) >= 2:
+        return intra_test
+    return candidates
 
 
 def _load_annotations(paths: list[Path]) -> list[tuple[Path, dict[str, Any]]]:
@@ -61,8 +68,8 @@ def _records(
                 continue
             subject_id = None
             parts = Path(relative).parts
-            if len(parts) >= 3 and parts[-2].isdigit():
-                subject_id = parts[-2]
+            if len(parts) >= 4 and parts[-3].isdigit():
+                subject_id = parts[-3]
             record = adapter.parse(relative, annotation, split, subject_id)
             image_path = resolve_dataset_path(root, relative)
             if record["is_valid"]:

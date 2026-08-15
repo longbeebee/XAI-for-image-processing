@@ -14,7 +14,10 @@ IMAGENET_STD = torch.tensor([0.229, 0.224, 0.225]).view(3, 1, 1)
 
 def normalized_auc(fractions: np.ndarray, probabilities: np.ndarray) -> float:
     """Integrate probability over modified area in [0,1]."""
-    return float(np.trapz(probabilities, fractions))
+    # ``trapz`` was removed from NumPy 2.0. Keep compatibility with older
+    # NumPy versions while preferring the current API.
+    trapezoid = np.trapezoid if hasattr(np, "trapezoid") else np.trapz
+    return float(trapezoid(probabilities, fractions))
 
 
 def _blur_baseline(image: torch.Tensor) -> torch.Tensor:
