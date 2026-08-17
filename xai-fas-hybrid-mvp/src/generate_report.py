@@ -24,6 +24,7 @@ def generate(config: dict[str, Any]) -> Path:
     environment = _json(output / "environment_report.json")
     subset = _json(output / "subset_manifest.json")
     classification = _json(layout["metrics"] / "classification_metrics.json")
+    threshold_summary = _json(layout["metrics"] / "threshold_summary.json")
     backends: set[str] = set()
     for filename in ("explanation_stability.csv", "faithfulness.csv", "sanity.csv"):
         path = layout["metrics"] / filename
@@ -52,9 +53,28 @@ def generate(config: dict[str, Any]) -> Path:
         else "Environment check not run.",
         "## Classification results",
         f"`{json.dumps(classification)}`" if classification else "Not run.",
+        "## Classification uncertainty and subgroup analysis",
+        "See `metrics/classification_confidence_intervals.json`, "
+        "`metrics/spoof_type_metrics.csv`, and "
+        "`predictions/validation_predictions.parquet` when present.",
+        "## Threshold and anti-spoofing operating points",
+        (
+            "Definitions: FAR = APCER (spoof accepted as real), FFR = BPCER "
+            "(real rejected as spoof), TAR = bona-fide acceptance rate (1 - FFR).\n\n"
+            f"Validation-selected threshold analysis: `{json.dumps(threshold_summary['selected_threshold_from_validation'])}`\n\n"
+            f"Diagnostic test-only minimum ACER: `{json.dumps(threshold_summary['diagnostic_min_acer_on_test'])}`\n\n"
+            f"Diagnostic test-only closest EER: `{json.dumps(threshold_summary['diagnostic_eer_on_test'])}`\n\n"
+            f"> {threshold_summary['warning']}"
+        )
+        if threshold_summary
+        else "Not run. See `metrics/threshold_operating_points.csv` when present.",
         "## Prediction and explanation stability",
         "See `metrics/prediction_stability.csv`, `metrics/explanation_stability.csv`, and "
         "`metrics/pces_summary.csv` when present.",
+        "## Visual explanation evidence",
+        "See `explanations/evidence/` for paired original/perturbed panels containing "
+        "Grad-CAM and Integrated Gradients overlays, with metrics in "
+        "`explanations/evidence/evidence_manifest.csv` when present.",
         "## Faithfulness and sanity",
         "See `metrics/faithfulness.csv` and `metrics/sanity.csv` when present.",
         "## Limitations",
@@ -83,4 +103,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

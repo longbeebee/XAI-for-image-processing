@@ -17,13 +17,28 @@ from sklearn.metrics import (
 
 
 def error_rates(y_true: np.ndarray, p_spoof: np.ndarray, threshold: float) -> dict[str, float]:
-    """Compute APCER, BPCER, and ACER (0=real, 1=spoof)."""
+    """Compute anti-spoofing error rates (0=real, 1=spoof).
+
+    ``far`` is the attack false-acceptance rate (APCER): spoof accepted as
+    real. ``ffr`` is the bona-fide false-rejection rate (BPCER): real rejected
+    as spoof. ``tar`` is defined explicitly as bona-fide true-acceptance rate;
+    ``spoof_detection_rate`` is the complementary attack-detection rate.
+    """
     predicted = (p_spoof >= threshold).astype(int)
     spoof = y_true == 1
     real = y_true == 0
     apcer = float(np.mean(predicted[spoof] == 0)) if spoof.any() else float("nan")
     bpcer = float(np.mean(predicted[real] == 1)) if real.any() else float("nan")
-    return {"apcer": apcer, "bpcer": bpcer, "acer": float((apcer + bpcer) / 2)}
+    acer = float((apcer + bpcer) / 2)
+    return {
+        "apcer": apcer,
+        "bpcer": bpcer,
+        "acer": acer,
+        "far": apcer,
+        "ffr": bpcer,
+        "tar": float(1.0 - bpcer),
+        "spoof_detection_rate": float(1.0 - apcer),
+    }
 
 
 def select_threshold(
@@ -62,4 +77,3 @@ def classification_metrics(
     result["roc_auc"] = float(roc_auc_score(y_true, p_spoof)) if len(np.unique(y_true)) > 1 else None
     result.update(error_rates(y_true, p_spoof, threshold))
     return result
-

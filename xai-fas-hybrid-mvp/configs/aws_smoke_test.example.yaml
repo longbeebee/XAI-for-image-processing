@@ -1,9 +1,9 @@
 seed: 42
 paths:
-  dataset_root: "/home/ubuntu/xai-fas/data/celeba_spoof_mvp"
-  processed_dir: "/home/ubuntu/xai-fas/data/processed"
-  output_dir: "/home/ubuntu/xai-fas/results"
-  cache_dir: "/home/ubuntu/xai-fas/cache"
+  dataset_root: "/home/ec2-user/XAI-for-image-processing/xai-fas-hybrid-mvp/data/celeba_spoof_mvp"
+  processed_dir: "/home/ec2-user/XAI-for-image-processing/xai-fas-hybrid-mvp/data/processed"
+  output_dir: "/home/ec2-user/XAI-for-image-processing/xai-fas-hybrid-mvp/results_smoke"
+  cache_dir: "/home/ec2-user/XAI-for-image-processing/xai-fas-hybrid-mvp/cache_smoke"
 device: {preferred: cuda, allow_cpu_fallback: false, mixed_precision: true}
 reproducibility: {deterministic_mode: best_effort}
 dataset:
@@ -23,5 +23,5 @@ xai:
   integrated_gradients: {n_steps: 8, internal_batch_size: 2, baseline: zero}
   topk: [0.1, 0.2]
 evaluation_limits: {prediction_stability_samples: 20, explanation_stability_samples: 10, faithfulness_samples: 5, sanity_samples: 3, runtime_samples: 5}
+visualization: {evidence_samples: 2, evidence_severities: [1, 3]}
 faithfulness: {patch_size: 32, steps: 5, baselines: [mean, blur]}
-

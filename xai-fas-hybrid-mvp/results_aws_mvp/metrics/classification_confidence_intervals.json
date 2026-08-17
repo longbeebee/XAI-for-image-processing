@@ -1,0 +1,74 @@
+{
+  "accuracy": {
+    "estimate": 0.766,
+    "bootstrap_mean": 0.765562,
+    "ci_low": 0.738,
+    "ci_high": 0.791525
+  },
+  "precision": {
+    "estimate": 0.9889705882352942,
+    "bootstrap_mean": 0.9889623517905453,
+    "ci_low": 0.9752020828633732,
+    "ci_high": 1.0
+  },
+  "recall": {
+    "estimate": 0.538,
+    "bootstrap_mean": 0.5370230629492788,
+    "ci_low": 0.4930344541303445,
+    "ci_high": 0.5787321063394683
+  },
+  "f1": {
+    "estimate": 0.6968911917098446,
+    "bootstrap_mean": 0.6958098163263413,
+    "ci_low": 0.6577994015677935,
+    "ci_high": 0.7298391899940441
+  },
+  "roc_auc": {
+    "estimate": 0.9445819999999999,
+    "bootstrap_mean": 0.9442982103204595,
+    "ci_low": 0.9301438586319394,
+    "ci_high": 0.9574409397780451
+  },
+  "apcer": {
+    "estimate": 0.462,
+    "bootstrap_mean": 0.4629769370507212,
+    "ci_low": 0.4212678936605317,
+    "ci_high": 0.5069655458696555
+  },
+  "bpcer": {
+    "estimate": 0.006,
+    "bootstrap_mean": 0.0059939293354405515,
+    "ci_low": 0.0,
+    "ci_high": 0.013851438612419966
+  },
+  "acer": {
+    "estimate": 0.234,
+    "bootstrap_mean": 0.23448543319308088,
+    "ci_low": 0.21355318774286755,
+    "ci_high": 0.2569523518293666
+  },
+  "far": {
+    "estimate": 0.462,
+    "bootstrap_mean": 0.4629769370507212,
+    "ci_low": 0.4212678936605317,
+    "ci_high": 0.5069655458696555
+  },
+  "ffr": {
+    "estimate": 0.006,
+    "bootstrap_mean": 0.0059939293354405515,
+    "ci_low": 0.0,
+    "ci_high": 0.013851438612419966
+  },
+  "tar": {
+    "estimate": 0.994,
+    "bootstrap_mean": 0.9940060706645595,
+    "ci_low": 0.9861485613875801,
+    "ci_high": 1.0
+  },
+  "spoof_detection_rate": {
+    "estimate": 0.538,
+    "bootstrap_mean": 0.5370230629492788,
+    "ci_low": 0.4930344541303445,
+    "ci_high": 0.5787321063394684
+  }
+}
