@@ -18,5 +18,9 @@
   "roc_auc": 0.9445819999999999,
   "apcer": 0.462,
   "bpcer": 0.006,
-  "acer": 0.234
+  "acer": 0.234,
+  "far": 0.462,
+  "ffr": 0.006,
+  "tar": 0.994,
+  "spoof_detection_rate": 0.538
 }

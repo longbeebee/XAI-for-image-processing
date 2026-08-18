@@ -1,0 +1,8 @@
+{
+  "duplicate_relative_paths": 0,
+  "duplicate_image_ids": 0,
+  "split_overlap": false,
+  "subject_overlap": true,
+  "subject_id_available": true,
+  "source": "portable_aws_bundle"
+}

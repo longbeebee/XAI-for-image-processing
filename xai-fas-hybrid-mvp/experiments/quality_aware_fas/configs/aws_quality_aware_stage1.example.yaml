@@ -1,0 +1,21 @@
+# New experiment configuration. This file does not replace the frozen MVP config.
+seed: 42
+seeds: [42, 123, 2024]
+paths:
+  dataset_root: "/home/ec2-user/XAI-for-image-processing/xai-fas-hybrid-mvp/data/celeba_spoof_mvp"
+  processed_dir: "/home/ec2-user/XAI-for-image-processing/xai-fas-hybrid-mvp/data/processed"
+  protocol_dir: "/home/ec2-user/XAI-for-image-processing/xai-fas-hybrid-mvp/results_quality_aware_stage1/protocol"
+  output_dir: "/home/ec2-user/XAI-for-image-processing/xai-fas-hybrid-mvp/results_quality_aware_stage1"
+  baseline_results_dir: "/home/ec2-user/XAI-for-image-processing/xai-fas-hybrid-mvp/results_aws_mvp"
+  cache_dir: "/home/ec2-user/XAI-for-image-processing/xai-fas-hybrid-mvp/cache_quality_aware_stage1"
+device: {preferred: cuda, allow_cpu_fallback: false, mixed_precision: true}
+reproducibility: {deterministic_mode: best_effort}
+dataset: {name: celeba_spoof, source: existing_aws_bundle, preserve_official_test_split: true, subject_disjoint_protocol: false}
+model: {backbone: mobilenet_v3_small, pretrained: true, num_classes: 2, quality_targets: [brightness, blur, jpeg]}
+training: {image_size: 224, batch_size: 32, total_epochs: 12, head_only_epochs: 2, unfreeze_last_blocks: 3, head_learning_rate: 0.001, fine_tune_learning_rate: 0.0001, uncertainty_learning_rate: 0.0001, uncertainty_epochs: 3, consistency_epochs: 4, representation_consistency_weight: 0.10, quality_loss_weight: 0.20, consistency_loss_weight: 0.0, uncertainty_loss_weight: 0.0, explanation_loss_weight: 0.05, weight_decay: 0.0001, gradient_clip_norm: 1.0, num_workers: 4, mixed_precision: true}
+evaluation: {threshold_strategy: min_acer, target_far: [0.01, 0.05, 0.10], bootstrap_iterations: 500, confidence_level: 0.95}
+quality: {brightness: [0.8, 0.6, 0.4], blur_sigma: [0.5, 1.0, 2.0], jpeg_quality: [70, 40, 20]}
+calibration: {enabled: false, method: temperature_scaling}
+uncertainty: {enabled: false}
+xai: {enabled: false, methods: [gradcam, integrated_gradients]}
+s3: {bucket_prefix: "s3://PRIVATE_BUCKET/xai-fas/quality-aware/stage1"}

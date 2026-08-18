@@ -1,0 +1,60 @@
+{
+  "gates": [
+    {
+      "name": "Gate 1: unit tests",
+      "status": "passed",
+      "started_at": "2026-08-17T09:47:18.698528+00:00",
+      "completed_at": "2026-08-17T09:47:18.698528+00:00",
+      "config_hash": "e157d3b540d95b4d1c9a5fe375f35634597c6bf86460a67de89975129088ad6c",
+      "error_message": null
+    },
+    {
+      "name": "Gate 2: mini integration fixture",
+      "status": "passed",
+      "started_at": "2026-08-17T09:47:20.467100+00:00",
+      "completed_at": "2026-08-17T09:47:20.467100+00:00",
+      "config_hash": "e157d3b540d95b4d1c9a5fe375f35634597c6bf86460a67de89975129088ad6c",
+      "error_message": null
+    },
+    {
+      "name": "Gate 3: real dataset inspection",
+      "status": "passed",
+      "started_at": "2026-08-17T09:47:22.214465+00:00",
+      "completed_at": "2026-08-17T09:47:22.214465+00:00",
+      "config_hash": "e157d3b540d95b4d1c9a5fe375f35634597c6bf86460a67de89975129088ad6c",
+      "error_message": null
+    },
+    {
+      "name": "Gate 4: subset manifest validation",
+      "status": "passed",
+      "started_at": "2026-08-17T09:47:23.942487+00:00",
+      "completed_at": "2026-08-17T09:47:23.942487+00:00",
+      "config_hash": "e157d3b540d95b4d1c9a5fe375f35634597c6bf86460a67de89975129088ad6c",
+      "error_message": null
+    },
+    {
+      "name": "Gate 5: AWS bundle checksum validation",
+      "status": "passed",
+      "started_at": "2026-08-17T09:47:25.689935+00:00",
+      "completed_at": "2026-08-17T09:47:25.689935+00:00",
+      "config_hash": "e157d3b540d95b4d1c9a5fe375f35634597c6bf86460a67de89975129088ad6c",
+      "error_message": null
+    },
+    {
+      "name": "Gate 6: AWS CUDA environment test",
+      "status": "passed",
+      "started_at": "2026-08-17T09:47:27.400281+00:00",
+      "completed_at": "2026-08-17T09:47:27.400281+00:00",
+      "config_hash": "e157d3b540d95b4d1c9a5fe375f35634597c6bf86460a67de89975129088ad6c",
+      "error_message": null
+    },
+    {
+      "name": "Gate 7: AWS smoke test",
+      "status": "passed",
+      "started_at": "2026-08-17T09:47:29.120068+00:00",
+      "completed_at": "2026-08-17T09:47:29.120068+00:00",
+      "config_hash": "e157d3b540d95b4d1c9a5fe375f35634597c6bf86460a67de89975129088ad6c",
+      "error_message": null
+    }
+  ]
+}

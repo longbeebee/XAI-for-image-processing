@@ -1,0 +1,11 @@
+{
+  "stage": "classifier",
+  "status": "completed",
+  "started_at": "2026-08-17T16:05:10.353685+00:00",
+  "completed_at": "2026-08-17T16:05:10.353685+00:00",
+  "config_hash": null,
+  "checkpoint_hash": null,
+  "dataset_manifest_hash": null,
+  "actual_backend": null,
+  "error_message": null
+}

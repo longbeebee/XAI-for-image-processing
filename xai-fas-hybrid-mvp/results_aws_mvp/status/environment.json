@@ -1,0 +1,11 @@
+{
+  "stage": "environment",
+  "status": "passed",
+  "started_at": "2026-08-17T16:04:44.235356+00:00",
+  "completed_at": "2026-08-17T16:04:44.235356+00:00",
+  "config_hash": null,
+  "checkpoint_hash": null,
+  "dataset_manifest_hash": null,
+  "actual_backend": "cuda",
+  "error_message": null
+}

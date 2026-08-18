@@ -1,0 +1,28 @@
+{
+  "seed": 42,
+  "counts": {
+    "train": 10000,
+    "val": 1000,
+    "test": 1000
+  },
+  "label_counts": {
+    "train": {
+      "spoof": 5000,
+      "real": 5000
+    },
+    "val": {
+      "spoof": 739,
+      "real": 261
+    },
+    "test": {
+      "spoof": 500,
+      "real": 500
+    }
+  },
+  "label_mapping": {
+    "0": 0,
+    "1": 1
+  },
+  "metadata_hash": "bc131cbae35742694016c09158b9b9319dd0b700a33030d1e87d2d2b1ba1d153",
+  "created_at": "2026-08-15T15:52:54.138705+00:00"
+}

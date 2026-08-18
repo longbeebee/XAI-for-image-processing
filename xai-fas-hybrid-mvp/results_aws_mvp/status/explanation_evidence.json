@@ -1,0 +1,11 @@
+{
+  "stage": "explanation_evidence",
+  "status": "completed",
+  "started_at": "2026-08-17T16:06:50.618438+00:00",
+  "completed_at": "2026-08-17T16:06:50.618438+00:00",
+  "config_hash": null,
+  "checkpoint_hash": null,
+  "dataset_manifest_hash": null,
+  "actual_backend": null,
+  "error_message": null
+}

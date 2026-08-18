@@ -1,0 +1,62 @@
+{
+  "python_version": "3.11.15 (main, Jul 15 2026, 00:00:00) [GCC 11.5.0 20240719 (Red Hat 11.5.0-5)]",
+  "operating_system": "Linux-6.12.95-124.187.amzn2023.x86_64-x86_64-with-glibc2.34",
+  "cpu": "x86_64",
+  "ram_bytes": 16552710144,
+  "pytorch_version": "2.11.0+cu128",
+  "torchvision_version": "0.26.0+cu128",
+  "captum_version": "0.9.0",
+  "torch_directml_version": null,
+  "cuda_version": "12.8",
+  "gpu_name": "Tesla T4",
+  "selected_backend": "cuda",
+  "dataset_root": "/home/ec2-user/XAI-for-image-processing/xai-fas-hybrid-mvp/data/celeba_spoof_mvp",
+  "available_disk_space": 72573747200,
+  "checks": [
+    {
+      "name": "tensor_operation",
+      "status": "passed",
+      "requested_device": "cuda",
+      "actual_device": "cuda",
+      "error_type": null,
+      "error_message": null,
+      "runtime": 0.024600880999969377
+    },
+    {
+      "name": "model_forward_backward_optimizer",
+      "status": "passed",
+      "requested_device": "cuda",
+      "actual_device": "cuda",
+      "error_type": null,
+      "error_message": null,
+      "runtime": 1.2326715420000482
+    },
+    {
+      "name": "gradcam_dummy",
+      "status": "passed",
+      "requested_device": "cuda",
+      "actual_device": "cuda",
+      "error_type": null,
+      "error_message": null,
+      "runtime": 0.2629843010000741
+    },
+    {
+      "name": "integrated_gradients_dummy",
+      "status": "passed",
+      "requested_device": "cuda",
+      "actual_device": "cuda",
+      "error_type": null,
+      "error_message": null,
+      "runtime": 0.16278256199996122
+    },
+    {
+      "name": "portable_checkpoint",
+      "status": "passed",
+      "requested_device": "cuda",
+      "actual_device": "cuda",
+      "error_type": null,
+      "error_message": null,
+      "runtime": 0.12516864100007297
+    }
+  ]
+}
