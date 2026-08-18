@@ -20,6 +20,7 @@ from .faithfulness_sanity import evaluate_faithfulness, evaluate_sanity
 
 
 def evaluate_final(config: dict, checkpoint: Path, protocol_dir: Path, output_dir: Path) -> dict:
+    output_dir.mkdir(parents=True, exist_ok=True)
     device = torch.device("cuda" if torch.cuda.is_available() and config["device"]["preferred"] == "cuda" else "cpu")
     if device.type != "cuda" and not config["device"].get("allow_cpu_fallback", False): raise RuntimeError("CUDA is required by this experiment.")
     from .model import QualityAwareFAS
@@ -32,6 +33,11 @@ def evaluate_final(config: dict, checkpoint: Path, protocol_dir: Path, output_di
     predictions = (test_scores >= threshold).astype(int)
     test_frame = pd.read_parquet(protocol_dir / "test_subject_disjoint.parquet").reset_index(drop=True)
     test_frame["score"] = test_scores; test_frame["prediction"] = predictions
+    test_frame["uncertainty"] = uncertainty
+    test_frame["quality_brightness"] = quality[:, 0]
+    test_frame["quality_blur"] = quality[:, 1]
+    test_frame["quality_jpeg"] = quality[:, 2]
+    test_frame.to_parquet(output_dir / "test_predictions.parquet", index=False)
     spoof_metrics = []
     if "spoof_type" in test_frame:
         for spoof_type, group in test_frame[test_frame["label_id"] == 1].groupby("spoof_type"):
@@ -49,7 +55,7 @@ def evaluate_final(config: dict, checkpoint: Path, protocol_dir: Path, output_di
     prediction_ms=(time.perf_counter()-start)/max(min(50,len(test)),1)*1000
     xai_summary=evaluate_xai(config,checkpoint,protocol_dir,output_dir/"xai",samples=300)
     result={"checkpoint":str(checkpoint),"device":str(device),"classification":classification_summary(test_labels,test_scores,threshold),"prediction_accuracy":float(np.mean(unchanged)),"quality_mean":quality.mean(0).tolist(),"uncertainty_mean":float(uncertainty.mean()),"spoof_type_metrics":spoof_metrics,"runtime":{"classifier_prediction_mean_ms":float(prediction_ms)},"xai_consistency":xai_summary,"faithfulness":evaluate_faithfulness(model,test,device,samples=20),"sanity":evaluate_sanity(model,test,device,samples=20)}
-    output_dir.mkdir(parents=True,exist_ok=True); (output_dir/"final_evaluation.json").write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8"); return result
+    (output_dir/"final_evaluation.json").write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8"); return result
 
 
 def main():
