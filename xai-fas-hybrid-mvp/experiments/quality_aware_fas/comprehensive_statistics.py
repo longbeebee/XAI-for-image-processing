@@ -79,6 +79,8 @@ def summarize(baseline_dir: Path, proposed_root: Path, output_dir: Path) -> dict
     base_labels = baseline_predictions["true_label"].to_numpy(int)
     base_scores = baseline_predictions["p_spoof"].to_numpy(float)
     base_pred = (base_scores >= float(baseline["threshold"])).astype(int)
+    baseline_predictions = baseline_predictions.copy()
+    baseline_predictions["prediction"] = base_pred
     base_calibration = _calibration(base_labels, base_scores)
     base_uncertainty = _uncertainty(base_labels, base_pred, 1.0 - np.maximum(base_scores, 1.0 - base_scores))
     records = _proposed_records(proposed_root)
@@ -100,10 +102,12 @@ def summarize(baseline_dir: Path, proposed_root: Path, output_dir: Path) -> dict
             "sanity": result.get("sanity", []),
             "runtime": result.get("runtime", {}),
         })
-        aligned = baseline_predictions[["image_id", "true_label"]].merge(
+        aligned = baseline_predictions[["image_id", "true_label", "prediction"]].merge(
             frame[["image_id", "prediction"]], on="image_id", how="inner", suffixes=("_baseline", "_proposed")
         )
-        paired.append((aligned["prediction_baseline"].to_numpy() != aligned["true_label"].to_numpy()) - (aligned["prediction_proposed"].to_numpy() != aligned["true_label"].to_numpy()))
+        baseline_errors = (aligned["prediction_baseline"].to_numpy(int) != aligned["true_label"].to_numpy(int)).astype(int)
+        proposed_errors = (aligned["prediction_proposed"].to_numpy(int) != aligned["true_label"].to_numpy(int)).astype(int)
+        paired.append(baseline_errors - proposed_errors)
 
     base = {
         "classification": baseline["classification"],
