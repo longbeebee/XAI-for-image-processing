@@ -9,7 +9,11 @@ cache/
 results/
 aws_bundle/
 *.pt
+# Version the frozen baseline checkpoint needed for controlled re-evaluation.
+!results_aws_mvp/checkpoints/*.pt
 *.pth
+# Also allow baseline checkpoint variants stored with the .pth suffix.
+!results_aws_mvp/checkpoints/*.pth
 *.npy
 *.npz
 *.parquet
