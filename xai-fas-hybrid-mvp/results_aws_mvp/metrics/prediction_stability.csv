@@ -1,0 +1,10 @@
+perturbation,severity,prediction_stability
+blur,1,0.985
+blur,2,0.931
+blur,3,0.846
+brightness,1,0.977
+brightness,2,0.96
+brightness,3,0.941
+jpeg,1,0.84
+jpeg,2,0.815
+jpeg,3,0.774

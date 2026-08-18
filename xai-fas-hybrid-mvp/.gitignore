@@ -13,10 +13,13 @@ aws_bundle/
 *.npy
 *.npz
 *.parquet
+# Version parquet metric artifacts from the frozen baseline only.
+!results_aws_mvp/metrics/*.parquet
 *.csv
+# Version the frozen baseline evaluation tables needed for reproducibility.
+!results_aws_mvp/metrics/*.csv
 *.tar
 configs/windows_mvp.yaml
 configs/windows_smoke_test.yaml
 configs/aws_mvp.yaml
 configs/aws_smoke_test.yaml
-
