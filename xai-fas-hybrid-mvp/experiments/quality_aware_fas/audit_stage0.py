@@ -10,19 +10,23 @@ from typing import Any
 
 REQUIRED = (
     "metrics/classification_metrics.json",
+    "environment_report.json",
+    "validation_gates.json",
+)
+
+OPTIONAL = (
     "metrics/prediction_stability.csv",
     "metrics/pces_summary.csv",
     "metrics/faithfulness.csv",
     "metrics/sanity.csv",
     "metrics/runtime.csv",
-    "environment_report.json",
-    "validation_gates.json",
 )
 
 
 def audit(baseline_dir: Path, output_dir: Path) -> dict[str, Any]:
     """Record a read-only baseline audit in the new experiment output area."""
     missing = [relative for relative in REQUIRED if not (baseline_dir / relative).is_file()]
+    optional_missing = [relative for relative in OPTIONAL if not (baseline_dir / relative).is_file()]
     classification = {}
     metrics_path = baseline_dir / "metrics/classification_metrics.json"
     if metrics_path.is_file():
@@ -36,6 +40,7 @@ def audit(baseline_dir: Path, output_dir: Path) -> dict[str, Any]:
         "stage": "stage0_frozen_baseline_audit",
         "baseline_dir": str(baseline_dir),
         "baseline_artifacts_missing": missing,
+        "baseline_optional_artifacts_missing": optional_missing,
         "validation_gates_all_passed": gates_passed,
         "classification_metrics": classification,
         "read_only": True,
