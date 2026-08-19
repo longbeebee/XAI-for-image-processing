@@ -56,9 +56,11 @@ def evaluate_final(config: dict, checkpoint: Path, protocol_dir: Path, output_di
         for index in range(min(50,len(test))): model(test[index]["image"].unsqueeze(0).to(device))
     prediction_ms=(time.perf_counter()-start)/max(min(50,len(test)),1)*1000
     xai_summary=evaluate_xai(config,checkpoint,protocol_dir,output_dir/"xai",samples=xai_samples)
-    faithfulness = evaluate_faithfulness(model, test, device, samples=xai_samples)
-    sanity = evaluate_sanity(model, test, device, samples=xai_samples)
-    result={"checkpoint":str(checkpoint),"device":str(device),"xai_sample_count":int(xai_samples),"faithfulness_sample_count":int(xai_samples),"sanity_sample_count":int(xai_samples),"classification":classification_summary(test_labels,test_scores,threshold),"prediction_accuracy":float(np.mean(unchanged)),"quality_mean":quality.mean(0).tolist(),"uncertainty_mean":float(uncertainty.mean()),"spoof_type_metrics":spoof_metrics,"runtime":{"classifier_prediction_mean_ms":float(prediction_ms)},"xai_consistency":xai_summary,"faithfulness":faithfulness,"sanity":sanity}
+    faithfulness_gradcam = evaluate_faithfulness(model, test, device, samples=xai_samples, method="gradcam")
+    faithfulness_ig = evaluate_faithfulness(model, test, device, samples=xai_samples, method="integrated_gradients")
+    sanity_gradcam = evaluate_sanity(model, test, device, samples=xai_samples, method="gradcam")
+    sanity_ig = evaluate_sanity(model, test, device, samples=xai_samples, method="integrated_gradients")
+    result={"checkpoint":str(checkpoint),"device":str(device),"xai_sample_count":int(xai_samples),"faithfulness_sample_count":int(xai_samples),"sanity_sample_count":int(xai_samples),"integrated_gradients_steps":24,"classification":classification_summary(test_labels,test_scores,threshold),"prediction_accuracy":float(np.mean(unchanged)),"quality_mean":quality.mean(0).tolist(),"uncertainty_mean":float(uncertainty.mean()),"spoof_type_metrics":spoof_metrics,"runtime":{"classifier_prediction_mean_ms":float(prediction_ms)},"xai_consistency":xai_summary,"faithfulness":faithfulness_gradcam,"sanity":sanity_gradcam,"faithfulness_by_method":{"gradcam":faithfulness_gradcam,"integrated_gradients":faithfulness_ig},"sanity_by_method":{"gradcam":sanity_gradcam,"integrated_gradients":sanity_ig}}
     (output_dir/"final_evaluation.json").write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8"); return result
 
 

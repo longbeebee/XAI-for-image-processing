@@ -100,6 +100,11 @@ def summarize(baseline_dir: Path, proposed_root: Path, output_dir: Path) -> dict
             "xai_consistency": result.get("xai_consistency", {}),
             "faithfulness": result.get("faithfulness", {}),
             "sanity": result.get("sanity", []),
+            "faithfulness_by_method": result.get("faithfulness_by_method", {}),
+            "sanity_by_method": result.get("sanity_by_method", {}),
+            "xai_sample_count": result.get("xai_sample_count"),
+            "faithfulness_sample_count": result.get("faithfulness_sample_count"),
+            "sanity_sample_count": result.get("sanity_sample_count"),
             "runtime": result.get("runtime", {}),
         })
         aligned = baseline_predictions[["image_id", "true_label", "prediction"]].merge(
@@ -116,6 +121,10 @@ def summarize(baseline_dir: Path, proposed_root: Path, output_dir: Path) -> dict
         "xai_consistency": baseline.get("xai_consistency", {}),
         "faithfulness": baseline.get("faithfulness", {}),
         "sanity": baseline.get("sanity", {}),
+        "faithfulness_by_method": baseline.get("faithfulness_by_method", {}),
+        "sanity_by_method": baseline.get("sanity_by_method", {}),
+        "xai_sample_count": baseline.get("xai_sample_count"),
+        "integrated_gradients_steps": baseline.get("integrated_gradients_steps"),
         "runtime": baseline.get("runtime", {}),
     }
     result = {

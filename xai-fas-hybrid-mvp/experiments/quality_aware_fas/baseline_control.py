@@ -123,6 +123,14 @@ def _integrated_gradients(model: torch.nn.Module, images: torch.Tensor, steps: i
     return _normalize_maps(maps)
 
 
+def _attribution(model: torch.nn.Module, images: torch.Tensor, method: str) -> torch.Tensor:
+    if method == "gradcam":
+        return _gradcam(model, images)
+    if method == "integrated_gradients":
+        return _integrated_gradients(model, images)
+    raise ValueError(f"Unsupported attribution method: {method}")
+
+
 def _summarize_maps(first: torch.Tensor, second: torch.Tensor) -> dict[str, float]:
     cosine = (first * second).sum(dim=1)
     count = max(1, int(first.shape[1] * 0.1))
@@ -150,11 +158,17 @@ def _quality_pair(frame: pd.DataFrame, root: Path, index: int, image_size: int) 
     return transform(original), transform(degraded)
 
 
-def _faithfulness(model: torch.nn.Module, dataset: CelebASpoofDataset, device: torch.device, samples: int) -> dict[str, float]:
+def _faithfulness(
+    model: torch.nn.Module,
+    dataset: CelebASpoofDataset,
+    device: torch.device,
+    samples: int,
+    method: str = "gradcam",
+) -> dict[str, float]:
     rows = []
     for index in range(min(samples, len(dataset))):
         image = dataset[index]["image"].unsqueeze(0).to(device)
-        saliency = _gradcam(model, image).detach()
+        saliency = _attribution(model, image, method).detach()
         order = saliency[0].argsort(descending=True)
         total = image.shape[-1] * image.shape[-2]
         deletion, insertion = [], []
@@ -173,9 +187,15 @@ def _faithfulness(model: torch.nn.Module, dataset: CelebASpoofDataset, device: t
     return {key: float(np.mean([row[key] for row in rows])) for key in rows[0]} if rows else {}
 
 
-def _sanity(model: torch.nn.Module, dataset: CelebASpoofDataset, device: torch.device, samples: int) -> list[dict[str, float]]:
+def _sanity(
+    model: torch.nn.Module,
+    dataset: CelebASpoofDataset,
+    device: torch.device,
+    samples: int,
+    method: str = "gradcam",
+) -> list[dict[str, float]]:
     original_state = {key: value.detach().cpu().clone() for key, value in model.state_dict().items()}
-    references = [(index, _gradcam(model, dataset[index]["image"].unsqueeze(0).to(device)).detach()) for index in range(min(samples, len(dataset)))]
+    references = [(index, _attribution(model, dataset[index]["image"].unsqueeze(0).to(device), method).detach()) for index in range(min(samples, len(dataset)))]
     results = []
     for level in (1, 2, 3):
         model.load_state_dict(original_state)
@@ -185,7 +205,7 @@ def _sanity(model: torch.nn.Module, dataset: CelebASpoofDataset, device: torch.d
                 parameter.data.normal_(0.0, 0.02)
         similarities = []
         for index, reference in references:
-            current = _gradcam(model, dataset[index]["image"].unsqueeze(0).to(device)).detach()
+            current = _attribution(model, dataset[index]["image"].unsqueeze(0).to(device), method).detach()
             similarities.append(float((reference * current).sum()))
         results.append({"randomization_level": level, "cosine_similarity": float(np.mean(similarities))})
     model.load_state_dict(original_state)
@@ -263,15 +283,25 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
         key: float(np.mean([row[key] for row in integrated_gradients_rows]))
         for key in integrated_gradients_rows[0]
     } if integrated_gradients_rows else {}
-    faithfulness = _faithfulness(model, test_dataset, device, args.xai_samples)
-    sanity = _sanity(model, test_dataset, device, args.xai_samples)
+    faithfulness_gradcam = _faithfulness(model, test_dataset, device, args.xai_samples, method="gradcam")
+    faithfulness_ig = _faithfulness(model, test_dataset, device, args.xai_samples, method="integrated_gradients")
+    sanity_gradcam = _sanity(model, test_dataset, device, args.xai_samples, method="gradcam")
+    sanity_ig = _sanity(model, test_dataset, device, args.xai_samples, method="integrated_gradients")
+    faithfulness_by_method = {
+        "gradcam": faithfulness_gradcam,
+        "integrated_gradients": faithfulness_ig,
+    }
+    sanity_by_method = {
+        "gradcam": sanity_gradcam,
+        "integrated_gradients": sanity_ig,
+    }
     xai_consistency = {
         "gradcam": gradcam_consistency,
         "integrated_gradients": integrated_gradients_consistency,
     }
     _write_json(metrics_dir / "xai_consistency.json", xai_consistency)
-    _write_json(metrics_dir / "faithfulness.json", faithfulness)
-    _write_json(metrics_dir / "sanity.json", {"gradcam": sanity})
+    _write_json(metrics_dir / "faithfulness.json", faithfulness_by_method)
+    _write_json(metrics_dir / "sanity.json", sanity_by_method)
     _write_json(
         metrics_dir / "runtime.json",
         {
@@ -297,8 +327,12 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
         "test_sample_count": int(len(test_predictions)),
         "classification": classification,
         "xai_consistency": xai_consistency,
-        "faithfulness": faithfulness,
-        "sanity": {"gradcam": sanity},
+        "xai_sample_count": int(args.xai_samples),
+        "integrated_gradients_steps": 24,
+        "faithfulness": faithfulness_gradcam,
+        "sanity": {"gradcam": sanity_gradcam},
+        "faithfulness_by_method": faithfulness_by_method,
+        "sanity_by_method": sanity_by_method,
     }
     _write_json(output / "baseline_control_manifest.json", manifest)
     return manifest
