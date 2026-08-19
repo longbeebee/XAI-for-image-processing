@@ -19,7 +19,9 @@ from .xai_evaluation import evaluate as evaluate_xai
 from .faithfulness_sanity import evaluate_faithfulness, evaluate_sanity
 
 
-def evaluate_final(config: dict, checkpoint: Path, protocol_dir: Path, output_dir: Path) -> dict:
+def evaluate_final(config: dict, checkpoint: Path, protocol_dir: Path, output_dir: Path, xai_samples: int = 300) -> dict:
+    if xai_samples <= 0:
+        raise ValueError("xai_samples must be positive")
     output_dir.mkdir(parents=True, exist_ok=True)
     device = torch.device("cuda" if torch.cuda.is_available() and config["device"]["preferred"] == "cuda" else "cpu")
     if device.type != "cuda" and not config["device"].get("allow_cpu_fallback", False): raise RuntimeError("CUDA is required by this experiment.")
@@ -53,13 +55,15 @@ def evaluate_final(config: dict, checkpoint: Path, protocol_dir: Path, output_di
     with torch.no_grad():
         for index in range(min(50,len(test))): model(test[index]["image"].unsqueeze(0).to(device))
     prediction_ms=(time.perf_counter()-start)/max(min(50,len(test)),1)*1000
-    xai_summary=evaluate_xai(config,checkpoint,protocol_dir,output_dir/"xai",samples=300)
-    result={"checkpoint":str(checkpoint),"device":str(device),"classification":classification_summary(test_labels,test_scores,threshold),"prediction_accuracy":float(np.mean(unchanged)),"quality_mean":quality.mean(0).tolist(),"uncertainty_mean":float(uncertainty.mean()),"spoof_type_metrics":spoof_metrics,"runtime":{"classifier_prediction_mean_ms":float(prediction_ms)},"xai_consistency":xai_summary,"faithfulness":evaluate_faithfulness(model,test,device,samples=20),"sanity":evaluate_sanity(model,test,device,samples=20)}
+    xai_summary=evaluate_xai(config,checkpoint,protocol_dir,output_dir/"xai",samples=xai_samples)
+    faithfulness = evaluate_faithfulness(model, test, device, samples=xai_samples)
+    sanity = evaluate_sanity(model, test, device, samples=xai_samples)
+    result={"checkpoint":str(checkpoint),"device":str(device),"xai_sample_count":int(xai_samples),"faithfulness_sample_count":int(xai_samples),"sanity_sample_count":int(xai_samples),"classification":classification_summary(test_labels,test_scores,threshold),"prediction_accuracy":float(np.mean(unchanged)),"quality_mean":quality.mean(0).tolist(),"uncertainty_mean":float(uncertainty.mean()),"spoof_type_metrics":spoof_metrics,"runtime":{"classifier_prediction_mean_ms":float(prediction_ms)},"xai_consistency":xai_summary,"faithfulness":faithfulness,"sanity":sanity}
     (output_dir/"final_evaluation.json").write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8"); return result
 
 
 def main():
-    parser=argparse.ArgumentParser(); parser.add_argument("--config",required=True,type=Path); parser.add_argument("--checkpoint",required=True,type=Path); parser.add_argument("--protocol-dir",required=True,type=Path); parser.add_argument("--output-dir",required=True,type=Path); args=parser.parse_args(); config=yaml.safe_load(args.config.read_text(encoding="utf-8")); print(json.dumps(evaluate_final(config,args.checkpoint,args.protocol_dir,args.output_dir),indent=2))
+    parser=argparse.ArgumentParser(); parser.add_argument("--config",required=True,type=Path); parser.add_argument("--checkpoint",required=True,type=Path); parser.add_argument("--protocol-dir",required=True,type=Path); parser.add_argument("--output-dir",required=True,type=Path); parser.add_argument("--xai-samples",default=300,type=int,help="Number of samples for XAI consistency, faithfulness, and sanity evaluation."); args=parser.parse_args(); config=yaml.safe_load(args.config.read_text(encoding="utf-8")); print(json.dumps(evaluate_final(config,args.checkpoint,args.protocol_dir,args.output_dir,args.xai_samples),indent=2))
 
 
 if __name__ == "__main__": main()
