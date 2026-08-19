@@ -13,6 +13,7 @@ from torch.utils.data import DataLoader
 from .model import QualityAwareFAS
 from .paired_dataset import PairedQualityDataset
 from .gradcam_training import consistency_loss, differentiable_gradcam
+from .train_stage2_calibrated import calibration_loss
 
 
 def saliency(model, images):
@@ -43,9 +44,12 @@ def run(config: dict, checkpoint: Path, output_dir: Path, seed: int = 42) -> dic
             representation=torch.nn.functional.mse_loss(original_out["representation"],degraded_out["representation"].detach())
             original_map=differentiable_gradcam(model,original); degraded_map=differentiable_gradcam(model,degraded)
             explanation=consistency_loss(original_map, degraded_map)
-            loss=classification+float(config["training"].get("representation_consistency_weight",0.1))*representation+float(config["training"].get("explanation_loss_weight",0.05))*explanation
+            original_uncertainty, _ = calibration_loss(original_out["uncertainty"], original_out["logits"].softmax(1)[:, 1], labels)
+            degraded_uncertainty, _ = calibration_loss(degraded_out["uncertainty"], degraded_out["logits"].softmax(1)[:, 1], labels)
+            uncertainty_preservation=(original_uncertainty+degraded_uncertainty)/2
+            loss=classification+float(config["training"].get("representation_consistency_weight",0.1))*representation+float(config["training"].get("explanation_loss_weight",0.05))*explanation+float(config["training"].get("uncertainty_preservation_weight",0.20))*uncertainty_preservation
             loss.backward(); torch.nn.utils.clip_grad_norm_(model.parameters(),float(config["training"]["gradient_clip_norm"])); optimizer.step(); total += float(loss.detach())
-        history.append({"epoch":epoch,"loss":total/max(len(loader),1)})
+        history.append({"epoch":epoch,"loss":total/max(len(loader),1),"uncertainty_preservation_weight":float(config["training"].get("uncertainty_preservation_weight",0.20))})
     output_dir.mkdir(parents=True,exist_ok=True); torch.save({"model_state":model.state_dict(),"seed":seed,"history":history},output_dir/"best_explanation_consistent_model.pt")
     result={"stage":"explanation_consistency","seed":seed,"device":str(device),"history":history}; (output_dir/"stage3_result.json").write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8"); return result
 
